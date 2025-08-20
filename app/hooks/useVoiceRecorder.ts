@@ -52,6 +52,7 @@ export function useVoiceRecorder({
         await audioContext.close()
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 
@@ -174,6 +175,7 @@ export function useVoiceRecorder({
       console.error("Error starting recording:", error)
       onError("Could not access microphone. Please check permissions.")
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onError])
 
   const stopRecording = useCallback(() => {

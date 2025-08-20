@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       try {
         const errorJson = JSON.parse(errorText)
         errorDetails = errorJson.message || errorJson.error || errorText
-      } catch (e) {
+      } catch {
         // If it's not JSON, use the raw error text
       }
 

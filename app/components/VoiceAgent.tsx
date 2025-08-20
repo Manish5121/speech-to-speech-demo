@@ -18,7 +18,7 @@ export default function VoiceAgent() {
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
-    onFinish: (message) => {
+    onFinish: () => {
       // Message finished - TTS will be triggered by useEffect
     },
     onError: (error) => {
@@ -94,12 +94,12 @@ export default function VoiceAgent() {
   }
 
   // Extract text content from various message formats
-  const extractTextFromMessage = (message: any): string => {
+  const extractTextFromMessage = (message: Record<string, unknown>): string => {
     // Try parts array first (most common AI SDK format)
     if (Array.isArray(message.parts)) {
       const textParts = message.parts
-        .filter((part: any) => part.type === "text")
-        .map((part: any) => part.text)
+        .filter((part: Record<string, unknown>) => part.type === "text")
+        .map((part: Record<string, unknown>) => part.text as string)
         .filter(Boolean)
 
       if (textParts.length > 0) {
@@ -115,10 +115,19 @@ export default function VoiceAgent() {
     // Try content array
     if (Array.isArray(message.content)) {
       const textParts = message.content
-        .filter((part: any) => part.type === "text" || typeof part === "string")
-        .map((part: any) =>
-          typeof part === "string" ? part : part.text || part.content
-        )
+        .filter((part: unknown) => {
+          if (typeof part === "string") return true
+          if (typeof part === "object" && part !== null) {
+            const obj = part as Record<string, unknown>
+            return obj.type === "text"
+          }
+          return false
+        })
+        .map((part: unknown) => {
+          if (typeof part === "string") return part
+          const obj = part as Record<string, unknown>
+          return (obj.text as string) || (obj.content as string)
+        })
         .filter(Boolean)
 
       if (textParts.length > 0) {
@@ -126,7 +135,7 @@ export default function VoiceAgent() {
       }
     }
 
-    return message.text || ""
+    return (message.text as string) || ""
   }
 
   // Auto-synthesize the latest assistant message using useEffect
@@ -141,7 +150,9 @@ export default function VoiceAgent() {
       !isSynthesizing &&
       status !== "streaming"
     ) {
-      const textContent = extractTextFromMessage(latestMessage)
+      const textContent = extractTextFromMessage(
+        latestMessage as unknown as Record<string, unknown>
+      )
 
       if (textContent?.trim()) {
         setLastProcessedMessageId(latestMessage.id)
@@ -200,7 +211,7 @@ export default function VoiceAgent() {
           ) : (
             <div className="max-w-3xl mx-auto h-96 overflow-y-auto border rounded-lg bg-gray-50 p-4">
               <div className="space-y-4">
-                {messages.map((message: any) => (
+                {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${
@@ -218,7 +229,9 @@ export default function VoiceAgent() {
                       `}
                     >
                       <p className="text-sm">
-                        {extractTextFromMessage(message) || "No text content"}
+                        {extractTextFromMessage(
+                          message as unknown as Record<string, unknown>
+                        ) || "No text content"}
                       </p>
                     </div>
                   </div>

@@ -186,7 +186,6 @@ export function useWisprWebSocket({
       totalPacketsRef.current = 0
       setIsTranscribing(true)
 
-      let chunkIndex = 0
       mediaRecorder.ondataavailable = async (event) => {
         if (event.data.size > 0) {
           // Convert audio blob to the format Wispr expects
