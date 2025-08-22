@@ -8,6 +8,11 @@ const geist = Geist({
   variable: "--font-geist",
 })
 
+export const metadata = {
+  title: "Veena Voice Agent - AI Voice Assistant",
+  description: "Natural voice conversations with AI",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
