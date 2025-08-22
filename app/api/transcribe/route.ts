@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
     const requestBody = {
       audio: audioBase64,
-      language: ["en"], // Can be made configurable
+      language: ["auto"], // Auto-detect language - supports Hindi, English, and many others
       context: {
         app: {
           type: "ai", // Voice AI assistant
@@ -115,7 +115,11 @@ export async function POST(req: Request) {
     }
 
     const result = await response.json()
-    console.log("✅ Wispr API result:", result)
+    console.log("✅ Wispr API result:", {
+      text: result.text,
+      detected_language: result.detected_language,
+      total_time: result.total_time,
+    })
 
     const responseData = {
       transcription: result.text,
